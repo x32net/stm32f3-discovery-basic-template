@@ -81,75 +81,12 @@ int main(void)
     {}
     DataReady = 0x00;
     
-    /* Read Compass data */
-//    Demo_CompassReadMag(MagBuffer);
+    /* Read Accelerometer data */
     Demo_CompassReadAcc(AccBuffer);
       
     for(int i=0;i<3;i++) {
       AccBuffer[i] /= 100.0f;
     }
-      /*
-    fNormAcc = sqrt((AccBuffer[0]*AccBuffer[0])+(AccBuffer[1]*AccBuffer[1])+(AccBuffer[2]*AccBuffer[2]));
-      
-    fSinRoll = -AccBuffer[1]/fNormAcc;
-    fCosRoll = sqrt(1.0-(fSinRoll * fSinRoll));
-    fSinPitch = AccBuffer[0]/fNormAcc;
-    fCosPitch = sqrt(1.0-(fSinPitch * fSinPitch));
-    if ( fSinRoll >0)
-    {
-      if (fCosRoll>0)
-      {
-        RollAng = acos(fCosRoll)*180/PI;
-      }
-      else
-      {
-        RollAng = acos(fCosRoll)*180/PI + 180;
-      }
-    }
-    else
-    {
-      if (fCosRoll>0)
-      {
-        RollAng = acos(fCosRoll)*180/PI + 360;
-      }
-      else
-      {
-        RollAng = acos(fCosRoll)*180/PI + 180;
-      }
-    }
-    
-    if ( fSinPitch >0)
-    {
-      if (fCosPitch>0)
-      {
-           PitchAng = acos(fCosPitch)*180/PI;
-      }
-      else
-      {
-         PitchAng = acos(fCosPitch)*180/PI + 180;
-      }
-    }
-    else
-    {
-      if (fCosPitch>0)
-      {
-           PitchAng = acos(fCosPitch)*180/PI + 360;
-      }
-      else
-      {
-         PitchAng = acos(fCosPitch)*180/PI + 180;
-      }
-    }
-    
-    if (RollAng >=360)
-    {
-      RollAng = RollAng - 360;
-    }
-     
-    if (PitchAng >=360)
-    {
-      PitchAng = PitchAng - 360;
-    }*/
     
     for(int i=0; i<3; i++){
       AbsAccBuffer[i] = ABS(AccBuffer[i]);
@@ -240,122 +177,6 @@ int main(void)
       STM_EVAL_LEDOff(LED9);
       STM_EVAL_LEDOff(LED5);
     }
-     
-    //fTiltedX = MagBuffer[0]*fCosPitch+MagBuffer[2]*fSinPitch;
-    //fTiltedY = MagBuffer[0]*fSinRoll*fSinPitch+MagBuffer[1]*fCosRoll-MagBuffer[1]*fSinRoll*fCosPitch;
-      
-    //HeadingValue = (float) ((atan2f((float)fTiltedY,(float)fTiltedX))*180)/PI;
- 
-    /*if (HeadingValue < 0)
-    {
-      HeadingValue = HeadingValue + 360;    
-    }*/
-    /*  
-    if ((RollAng <= 40.0f) && (PitchAng <= 40.0f))
-    {
-      if (((HeadingValue < 25.0f)&&(HeadingValue >= 0.0f))||((HeadingValue >=340.0f)&&(HeadingValue <= 360.0f)))
-      {
-        STM_EVAL_LEDOn(LED10);
-        STM_EVAL_LEDOff(LED3);
-        STM_EVAL_LEDOff(LED6);
-        STM_EVAL_LEDOff(LED7);
-        STM_EVAL_LEDOff(LED4);
-        STM_EVAL_LEDOff(LED8);
-        STM_EVAL_LEDOff(LED9);
-        STM_EVAL_LEDOff(LED5);
-      }
-      else  if ((HeadingValue <70.0f)&&(HeadingValue >= 25.0f))
-      {
-        STM_EVAL_LEDOn(LED9);
-        STM_EVAL_LEDOff(LED6);
-        STM_EVAL_LEDOff(LED10);
-        STM_EVAL_LEDOff(LED3);
-        STM_EVAL_LEDOff(LED8);
-        STM_EVAL_LEDOff(LED5);
-        STM_EVAL_LEDOff(LED4);
-        STM_EVAL_LEDOff(LED7);
-      } 
-      else  if ((HeadingValue < 115.0f)&&(HeadingValue >= 70.0f))
-      {
-        STM_EVAL_LEDOn(LED7);
-        STM_EVAL_LEDOff(LED3);
-        STM_EVAL_LEDOff(LED4);
-        STM_EVAL_LEDOff(LED9);
-        STM_EVAL_LEDOff(LED10);
-        STM_EVAL_LEDOff(LED8);
-        STM_EVAL_LEDOff(LED6);
-        STM_EVAL_LEDOff(LED5);
-      }
-      else  if ((HeadingValue <160.0f)&&(HeadingValue >= 115.0f))
-      {
-        STM_EVAL_LEDOn(LED5);
-        STM_EVAL_LEDOff(LED6);
-        STM_EVAL_LEDOff(LED10);
-        STM_EVAL_LEDOff(LED8);
-        STM_EVAL_LEDOff(LED9);
-        STM_EVAL_LEDOff(LED7);
-        STM_EVAL_LEDOff(LED4);
-        STM_EVAL_LEDOff(LED3);
-      } 
-      else  if ((HeadingValue <205.0f)&&(HeadingValue >= 160.0f))
-      {
-        STM_EVAL_LEDOn(LED3);
-        STM_EVAL_LEDOff(LED6);
-        STM_EVAL_LEDOff(LED4);
-        STM_EVAL_LEDOff(LED8);
-        STM_EVAL_LEDOff(LED9);
-        STM_EVAL_LEDOff(LED5);
-        STM_EVAL_LEDOff(LED10);
-        STM_EVAL_LEDOff(LED7);
-      } 
-      else  if ((HeadingValue <250.0f)&&(HeadingValue >= 205.0f))
-      {
-        STM_EVAL_LEDOn(LED4);
-        STM_EVAL_LEDOff(LED6);
-        STM_EVAL_LEDOff(LED10);
-        STM_EVAL_LEDOff(LED8);
-        STM_EVAL_LEDOff(LED9);
-        STM_EVAL_LEDOff(LED5);
-        STM_EVAL_LEDOff(LED3);
-        STM_EVAL_LEDOff(LED7);
-      } 
-      else  if ((HeadingValue < 295.0f)&&(HeadingValue >= 250.0f))
-      {
-        STM_EVAL_LEDOn(LED6);
-        STM_EVAL_LEDOff(LED9);
-        STM_EVAL_LEDOff(LED10);
-        STM_EVAL_LEDOff(LED8);
-        STM_EVAL_LEDOff(LED3);
-        STM_EVAL_LEDOff(LED5);
-        STM_EVAL_LEDOff(LED4);
-        STM_EVAL_LEDOff(LED7);
-      }        
-      else  if ((HeadingValue < 340.0f)&&(HeadingValue >= 295.0f))
-      {
-        STM_EVAL_LEDOn(LED8);
-        STM_EVAL_LEDOff(LED6);
-        STM_EVAL_LEDOff(LED10);
-        STM_EVAL_LEDOff(LED7);
-        STM_EVAL_LEDOff(LED9);
-        STM_EVAL_LEDOff(LED3);
-        STM_EVAL_LEDOff(LED4);
-        STM_EVAL_LEDOff(LED5);
-      }
-    }
-    else
-    {
-      /* Toggle All LEDs * /
-      STM_EVAL_LEDToggle(LED7);
-      STM_EVAL_LEDToggle(LED6);
-      STM_EVAL_LEDToggle(LED10);
-      STM_EVAL_LEDToggle(LED8);
-      STM_EVAL_LEDToggle(LED9);
-      STM_EVAL_LEDToggle(LED3);
-      STM_EVAL_LEDToggle(LED4);
-      STM_EVAL_LEDToggle(LED5);
-      /* Delay 50ms * /
-      Delay(5);
-    }*/
   }
 }
 
