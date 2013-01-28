@@ -68,10 +68,5 @@ void servo_init() {
 }
 
 void servo_set_pos(uint32_t pos){
-  if(pos <= 1000){
-    TIM_SetCompare2(TIM3, 1000+pos);
-  }
-  else{
-    //error?
-  }
+  TIM_SetCompare2(TIM3, pos);
 }

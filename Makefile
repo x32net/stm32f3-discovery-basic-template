@@ -21,6 +21,7 @@ OPENOCD_PROC_FILE=extra/stm32f3-openocd.cfg
 ###################################################
 
 CC=arm-none-eabi-gcc
+GDB=arm-none-eabi-gdb
 OBJCOPY=arm-none-eabi-objcopy
 OBJDUMP=arm-none-eabi-objdump
 SIZE=arm-none-eabi-size
@@ -71,9 +72,15 @@ $(PROJ_NAME).elf: $(SRCS)
 	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
 	$(OBJDUMP) -St $(PROJ_NAME).elf >$(PROJ_NAME).lst
 	$(SIZE) $(PROJ_NAME).elf
+
+$(PROJ_NAME).bin: $(PROJ_NAME).elf
 	
 program: $(PROJ_NAME).bin
 	openocd -f $(OPENOCD_BOARD_DIR)/stm32f3discovery.cfg -f $(OPENOCD_PROC_FILE) -c "stm_flash `pwd`/$(PROJ_NAME).bin" -c shutdown
+	touch program
+
+debug: $(PROJ_NAME).elf program
+	$(GDB) -x gdb_cmds $(PROJ_NAME).elf
 
 clean:
 	find ./ -name '*~' | xargs rm -f	

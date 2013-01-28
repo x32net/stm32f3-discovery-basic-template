@@ -39,13 +39,13 @@ void SysTick_Handler(void)
   DataReady ++;
   ServoTimer ++;
   if(ServoTimer < 200) { //every 2 sec
-	servo_set_pos(0);
+	servo_set_pos(550);
   }
   else if(ServoTimer < 400) {
-	servo_set_pos(500);
+	servo_set_pos(1425);
   }
   else if(ServoTimer < 600) {
-	servo_set_pos(1000);
+	servo_set_pos(2300);
   }
   else{
     ServoTimer = 0;
