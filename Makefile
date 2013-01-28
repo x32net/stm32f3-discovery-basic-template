@@ -1,5 +1,5 @@
 # put your *.o targets here, make should handle the rest!
-SRCS = main.c errno.c stm32f3_discovery.c stm32f3_discovery_lsm303dlhc.c system_stm32f30x.c
+SRCS = main.c errno.c stm32f3_discovery.c stm32f3_discovery_lsm303dlhc.c system_stm32f30x.c servo.c
 
 # all the files will be generated with this name (main.elf, main.bin, main.hex, etc)
 PROJ_NAME=main

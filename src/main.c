@@ -1,9 +1,11 @@
 #include "stm32f30x.h"
 #include "stm32f3_discovery.h"
 #include "stm32f3_discovery_lsm303dlhc.h"
+#include "servo.h"
 
 #define ABS(x)         (x < 0) ? (-x) : x
 #define PI                         (float)     3.14159265f
+#define ACCEL_MULT  6
 
 #define LSM_Acc_Sensitivity_2g     (float)     1.0f            /*!< accelerometer sensitivity with 2 g full scale [LSB/mg] */
 #define LSM_Acc_Sensitivity_4g     (float)     0.5f            /*!< accelerometer sensitivity with 4 g full scale [LSB/mg] */
@@ -13,6 +15,7 @@
 /* Private variables ---------------------------------------------------------*/
   RCC_ClocksTypeDef RCC_Clocks;
 __IO uint32_t TimingDelay = 0;
+__IO uint16_t ServoTimer = 0;
 __IO uint8_t DataReady = 0;
 float AccBuffer[3] = {0.0f};
 float AbsAccBuffer[3] = {0.0f};
@@ -34,6 +37,19 @@ void SysTick_Handler(void)
 {
   TimingDelay_Decrement();
   DataReady ++;
+  ServoTimer ++;
+  if(ServoTimer < 200) { //every 2 sec
+	servo_set_pos(0);
+  }
+  else if(ServoTimer < 400) {
+	servo_set_pos(500);
+  }
+  else if(ServoTimer < 600) {
+	servo_set_pos(1000);
+  }
+  else{
+    ServoTimer = 0;
+  }
 }
 
 /**
@@ -46,6 +62,7 @@ int main(void)
   /* SysTick end of count event each 10ms */
   RCC_GetClocksFreq(&RCC_Clocks);
   SysTick_Config(RCC_Clocks.HCLK_Frequency / 100);
+  servo_init();
   
   /* Initialize LEDs and User Button available on STM32F3-Discovery board */
   STM_EVAL_LEDInit(LED3);
@@ -91,8 +108,8 @@ int main(void)
     for(int i=0; i<3; i++){
       AbsAccBuffer[i] = ABS(AccBuffer[i]);
     }
-    if (  AbsAccBuffer[0] > 8*AbsAccBuffer[1]
-       && AbsAccBuffer[0] > 8*AbsAccBuffer[2] ){
+    if (  AbsAccBuffer[0] > ACCEL_MULT*AbsAccBuffer[1]
+       && AbsAccBuffer[0] > ACCEL_MULT*AbsAccBuffer[2] ){
       if(AccBuffer[0] > 0){
         STM_EVAL_LEDOn(LED10);
         
@@ -116,8 +133,8 @@ int main(void)
         STM_EVAL_LEDOff(LED10);
       }
     }
-    else if (  AbsAccBuffer[1] > 8*AbsAccBuffer[0]
-            && AbsAccBuffer[1] > 8*AbsAccBuffer[2] ){
+    else if (  AbsAccBuffer[1] > ACCEL_MULT*AbsAccBuffer[0]
+            && AbsAccBuffer[1] > ACCEL_MULT*AbsAccBuffer[2] ){
       if(AccBuffer[1] > 0){
         STM_EVAL_LEDOn(LED7);
         
@@ -141,8 +158,8 @@ int main(void)
         STM_EVAL_LEDOff(LED10);
       }
     }
-    else if (  AbsAccBuffer[2] > 8*AbsAccBuffer[1]
-            && AbsAccBuffer[2] > 8*AbsAccBuffer[0] ){
+    else if (  AbsAccBuffer[2] > ACCEL_MULT*AbsAccBuffer[1]
+            && AbsAccBuffer[2] > ACCEL_MULT*AbsAccBuffer[0] ){
       if(AccBuffer[2] > 0){
         STM_EVAL_LEDOn(LED5);
         STM_EVAL_LEDOn(LED8);
