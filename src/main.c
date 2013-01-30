@@ -2,6 +2,7 @@
 #include "stm32f3_discovery.h"
 #include "stm32f3_discovery_lsm303dlhc.h"
 #include "servo.h"
+#include "beep.h"
 
 #define ABS(x)         (x < 0) ? (-x) : x
 #define PI                         (float)     3.14159265f
@@ -12,11 +13,22 @@
 #define LSM_Acc_Sensitivity_8g     (float)     0.25f           /*!< accelerometer sensitivity with 8 g full scale [LSB/mg] */
 #define LSM_Acc_Sensitivity_16g    (float)     0.0834f         /*!< accelerometer sensitivity with 12 g full scale [LSB/mg] */
 
+/* Private types -------------------------------------------------------------*/
+typedef enum{ // direction is based on the LED that lights in that direction
+  NORTH = 3,
+  SOUTH = 10,
+  WEST = 6,
+  EAST = 7,
+  UP = 5,
+  DOWN = 4
+} Direction_t;
+
 /* Private variables ---------------------------------------------------------*/
   RCC_ClocksTypeDef RCC_Clocks;
 __IO uint32_t TimingDelay = 0;
 __IO uint16_t ServoTimer = 0;
 __IO uint8_t DataReady = 0;
+__IO uint8_t LastPos = 0;
 float AccBuffer[3] = {0.0f};
 float AbsAccBuffer[3] = {0.0f};
 
@@ -32,10 +44,13 @@ void Demo_CompassReadAcc(float* pfData);
   * @brief  This function handles SysTick Handler.
   * @param  None
   * @retval None
+  *
+  * this is called every 10ms
   */
 void SysTick_Handler(void)
 {
   TimingDelay_Decrement();
+  beep_tick();
   DataReady ++;
   ServoTimer ++;
   if(ServoTimer < 200) { //every 2 sec
@@ -63,6 +78,7 @@ int main(void)
   RCC_GetClocksFreq(&RCC_Clocks);
   SysTick_Config(RCC_Clocks.HCLK_Frequency / 100);
   servo_init();
+  beep_init();
   
   /* Initialize LEDs and User Button available on STM32F3-Discovery board */
   STM_EVAL_LEDInit(LED3);
@@ -136,6 +152,10 @@ int main(void)
     else if (  AbsAccBuffer[1] > ACCEL_MULT*AbsAccBuffer[0]
             && AbsAccBuffer[1] > ACCEL_MULT*AbsAccBuffer[2] ){
       if(AccBuffer[1] > 0){
+    	if(LastPos != 7){
+    		LastPos = 7;
+    		beep_on(1);
+    	}
         STM_EVAL_LEDOn(LED7);
         
         STM_EVAL_LEDOff(LED3);
@@ -147,6 +167,10 @@ int main(void)
         STM_EVAL_LEDOff(LED10);
       }
       else{
+      	if(LastPos != 6){
+      		LastPos = 6;
+      		beep_on(0);
+      	}
         STM_EVAL_LEDOn(LED6);
         
         STM_EVAL_LEDOff(LED3);
