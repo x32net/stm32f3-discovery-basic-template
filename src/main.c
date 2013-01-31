@@ -27,12 +27,12 @@ float AccBuffer[3] = {0.0f};
 float AbsAccBuffer[3] = {0.0f};
 const Indication_t IndicationMap[6][6] =
 {
-    {IND_INV, IND_INV, IND_CCW, IND_CW,  IND_N,   IND_S},
-    {IND_INV, IND_INV, IND_CW,  IND_CCW, IND_S,   IND_N},
-    {IND_CW,  IND_CCW, IND_INV, IND_INV, IND_E,   IND_W},
-    {IND_CCW, IND_CW,  IND_INV, IND_INV, IND_W,   IND_E},
-    {IND_N,   IND_S,   IND_E,   IND_W,   IND_INV, IND_INV},
-    {IND_N,   IND_S,   IND_E,   IND_W,   IND_INV, IND_INV}
+    {IND_INV, IND_INV, IND_CCW, IND_CW,  IND_SN,  IND_NS},
+    {IND_INV, IND_INV, IND_CW,  IND_CCW, IND_NS,  IND_SN},
+    {IND_CW,  IND_CCW, IND_INV, IND_INV, IND_WE,  IND_EW},
+    {IND_CCW, IND_CW,  IND_INV, IND_INV, IND_EW,  IND_WE},
+    {IND_NS,  IND_SN,  IND_EW,  IND_WE,  IND_INV, IND_INV},
+    {IND_SN,  IND_NS,  IND_WE,  IND_EW,  IND_INV, IND_INV}
 };
 const Direction_t DirList[12] =
 { NORTH, EAST, DOWN, SOUTH, WEST, NORTH, UP, WEST, SOUTH, EAST, SOUTH, UP };

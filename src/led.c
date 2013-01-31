@@ -40,26 +40,66 @@ void led_init(){
 
 void led_set_indication(Indication_t ind){
   LEDInd = ind;
+  LEDSeq = 0;
 }
 
-void led_toggle(){
+void led_do_NS_sweep(){
   led_all_off();
-  uint8_t mySeq = (LEDSeq/25) % 2;
-  if(mySeq == 1){
-    switch(LEDInd){
-    case IND_N:
+  uint8_t mySeq = LEDSeq/25;
+  if(LEDInd == IND_SN){
+    mySeq = 3-mySeq;
+  }
+  switch(mySeq){
+  case 0:
+    if(LEDInd == IND_NS){
       STM_EVAL_LEDOn(LED3);
-      break;
-    case IND_S:
-      STM_EVAL_LEDOn(LED10);
-      break;
-    case IND_E:
-      STM_EVAL_LEDOn(LED7);
-      break;
-    case IND_W:
-      STM_EVAL_LEDOn(LED6);
-      break;
     }
+    else{
+      STM_EVAL_LEDOn(LED10);
+    }
+    break;
+  case 1:
+    STM_EVAL_LEDOn(LED5);
+    STM_EVAL_LEDOn(LED4);
+    break;
+  case 2:
+    STM_EVAL_LEDOn(LED7);
+    STM_EVAL_LEDOn(LED6);
+    break;
+  case 3:
+    STM_EVAL_LEDOn(LED9);
+    STM_EVAL_LEDOn(LED8);
+    break;
+  }
+}
+
+void led_do_EW_sweep(){
+  led_all_off();
+  uint8_t mySeq = LEDSeq/25;
+  if(LEDInd == IND_WE){
+    mySeq = 3-mySeq;
+  }
+  switch(mySeq){
+  case 0:
+    if(LEDInd == IND_EW){
+      STM_EVAL_LEDOn(LED7);
+    }
+    else{
+      STM_EVAL_LEDOn(LED6);
+    }
+    break;
+  case 1:
+    STM_EVAL_LEDOn(LED5);
+    STM_EVAL_LEDOn(LED9);
+    break;
+  case 2:
+    STM_EVAL_LEDOn(LED3);
+    STM_EVAL_LEDOn(LED10);
+    break;
+  case 3:
+    STM_EVAL_LEDOn(LED8);
+    STM_EVAL_LEDOn(LED4);
+    break;
   }
 }
 
@@ -95,11 +135,13 @@ void led_tick(){
   }
   if((LEDSeq % 25) == 0){
     switch(LEDInd){
-    case IND_N:
-    case IND_S:
-    case IND_E:
-    case IND_W:
-      led_toggle();
+    case IND_NS:
+    case IND_SN:
+      led_do_NS_sweep();
+      break;
+    case IND_EW:
+    case IND_WE:
+      led_do_EW_sweep();
       break;
     case IND_CW:
     case IND_CCW:

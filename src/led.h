@@ -11,10 +11,10 @@
 #include "main.h"
 
 typedef enum{
-  IND_N,
-  IND_S,
-  IND_E,
-  IND_W,
+  IND_NS,
+  IND_SN,
+  IND_EW,
+  IND_WE,
   IND_CW,
   IND_CCW,
   IND_INV
