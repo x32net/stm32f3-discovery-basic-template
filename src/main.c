@@ -3,6 +3,8 @@
 #include "stm32f3_discovery_lsm303dlhc.h"
 #include "servo.h"
 #include "beep.h"
+#include "main.h"
+#include "led.h"
 
 #define ABS(x)         (x < 0) ? (-x) : x
 #define PI                         (float)     3.14159265f
@@ -13,30 +15,34 @@
 #define LSM_Acc_Sensitivity_8g     (float)     0.25f           /*!< accelerometer sensitivity with 8 g full scale [LSB/mg] */
 #define LSM_Acc_Sensitivity_16g    (float)     0.0834f         /*!< accelerometer sensitivity with 12 g full scale [LSB/mg] */
 
-/* Private types -------------------------------------------------------------*/
-typedef enum{ // direction is based on the LED that lights in that direction
-  NORTH = 3,
-  SOUTH = 10,
-  WEST = 6,
-  EAST = 7,
-  UP = 5,
-  DOWN = 4
-} Direction_t;
 
 /* Private variables ---------------------------------------------------------*/
-  RCC_ClocksTypeDef RCC_Clocks;
-__IO uint32_t TimingDelay = 0;
-__IO uint16_t ServoTimer = 0;
-__IO uint8_t DataReady = 0;
-__IO uint8_t LastPos = 0;
+RCC_ClocksTypeDef RCC_Clocks;
+__IO uint32_t     TimingDelay = 0;
+__IO uint16_t     ServoTimer  = 0;
+__IO uint8_t      DataReady   = 0;
+__IO Direction_t  LastDir     = UP;
+__IO uint8_t      DirPos      = 0;
 float AccBuffer[3] = {0.0f};
 float AbsAccBuffer[3] = {0.0f};
+const Indication_t IndicationMap[6][6] =
+{
+    {IND_INV, IND_INV, IND_CCW, IND_CW,  IND_N,   IND_S},
+    {IND_INV, IND_INV, IND_CW,  IND_CCW, IND_S,   IND_N},
+    {IND_CW,  IND_CCW, IND_INV, IND_INV, IND_E,   IND_W},
+    {IND_CCW, IND_CW,  IND_INV, IND_INV, IND_W,   IND_E},
+    {IND_N,   IND_S,   IND_E,   IND_W,   IND_INV, IND_INV},
+    {IND_N,   IND_S,   IND_E,   IND_W,   IND_INV, IND_INV}
+};
+const Direction_t DirList[12] =
+{ NORTH, EAST, DOWN, SOUTH, WEST, NORTH, UP, WEST, SOUTH, EAST, SOUTH, UP };
 
 /* Private function prototypes -----------------------------------------------*/
 void TimingDelay_Decrement(void);
 void Delay(__IO uint32_t nTime);
 void Demo_CompassConfig(void);
 void Demo_CompassReadAcc(float* pfData);
+
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -50,7 +56,6 @@ void Demo_CompassReadAcc(float* pfData);
 void SysTick_Handler(void)
 {
   TimingDelay_Decrement();
-  beep_tick();
   DataReady ++;
   ServoTimer ++;
   if(ServoTimer < 200) { //every 2 sec
@@ -64,6 +69,26 @@ void SysTick_Handler(void)
   }
   else{
     ServoTimer = 0;
+  }
+
+  beep_tick();
+  led_tick();
+}
+
+void HandleNewDir(Direction_t dir){
+  if(dir == DirList[DirPos] ){
+    beep_on(1);
+    LastDir = dir;
+    if(++DirPos == 12){
+      DirPos = 0;
+    }
+    led_set_indication(IndicationMap[dir][DirList[DirPos]]);
+  }
+  else if(dir == LastDir){
+    //do nothing
+  }
+  else{
+    beep_on(0);
   }
 }
 
@@ -79,32 +104,15 @@ int main(void)
   SysTick_Config(RCC_Clocks.HCLK_Frequency / 100);
   servo_init();
   beep_init();
-  
-  /* Initialize LEDs and User Button available on STM32F3-Discovery board */
-  STM_EVAL_LEDInit(LED3);
-  STM_EVAL_LEDInit(LED4);
-  STM_EVAL_LEDInit(LED5);
-  STM_EVAL_LEDInit(LED6);
-  STM_EVAL_LEDInit(LED7);
-  STM_EVAL_LEDInit(LED8);
-  STM_EVAL_LEDInit(LED9);
-  STM_EVAL_LEDInit(LED10);
-    
-  /* LEDs Off */
-  STM_EVAL_LEDOff(LED4);
-  STM_EVAL_LEDOff(LED3);
-  STM_EVAL_LEDOff(LED6);
-  STM_EVAL_LEDOff(LED7);
-  STM_EVAL_LEDOff(LED10);
-  STM_EVAL_LEDOff(LED8);
-  STM_EVAL_LEDOff(LED9);
-  STM_EVAL_LEDOff(LED5);
+  led_init();
   
   /* Demo Compass & accelerometer */
   Demo_CompassConfig();
   
   DataReady = 0x00;
-   
+
+  led_set_indication(IndicationMap[UP][DirList[0]]);
+
   /* Infinite loop */
   while (1)
   {   
@@ -120,103 +128,36 @@ int main(void)
     for(int i=0;i<3;i++) {
       AccBuffer[i] /= 100.0f;
     }
-    
     for(int i=0; i<3; i++){
       AbsAccBuffer[i] = ABS(AccBuffer[i]);
     }
+
     if (  AbsAccBuffer[0] > ACCEL_MULT*AbsAccBuffer[1]
        && AbsAccBuffer[0] > ACCEL_MULT*AbsAccBuffer[2] ){
       if(AccBuffer[0] > 0){
-        STM_EVAL_LEDOn(LED10);
-        
-        STM_EVAL_LEDOff(LED3);
-        STM_EVAL_LEDOff(LED4);
-        STM_EVAL_LEDOff(LED5);
-        STM_EVAL_LEDOff(LED6);
-        STM_EVAL_LEDOff(LED7);
-        STM_EVAL_LEDOff(LED8);
-        STM_EVAL_LEDOff(LED9);
+        HandleNewDir(SOUTH);
       }
       else{
-        STM_EVAL_LEDOn(LED3);
-        
-        STM_EVAL_LEDOff(LED4);
-        STM_EVAL_LEDOff(LED5);
-        STM_EVAL_LEDOff(LED6);
-        STM_EVAL_LEDOff(LED7);
-        STM_EVAL_LEDOff(LED8);
-        STM_EVAL_LEDOff(LED9);
-        STM_EVAL_LEDOff(LED10);
+        HandleNewDir(NORTH);
       }
     }
     else if (  AbsAccBuffer[1] > ACCEL_MULT*AbsAccBuffer[0]
             && AbsAccBuffer[1] > ACCEL_MULT*AbsAccBuffer[2] ){
       if(AccBuffer[1] > 0){
-    	if(LastPos != 7){
-    		LastPos = 7;
-    		beep_on(1);
-    	}
-        STM_EVAL_LEDOn(LED7);
-        
-        STM_EVAL_LEDOff(LED3);
-        STM_EVAL_LEDOff(LED4);
-        STM_EVAL_LEDOff(LED5);
-        STM_EVAL_LEDOff(LED6);
-        STM_EVAL_LEDOff(LED8);
-        STM_EVAL_LEDOff(LED9);
-        STM_EVAL_LEDOff(LED10);
+        HandleNewDir(EAST);
       }
       else{
-      	if(LastPos != 6){
-      		LastPos = 6;
-      		beep_on(0);
-      	}
-        STM_EVAL_LEDOn(LED6);
-        
-        STM_EVAL_LEDOff(LED3);
-        STM_EVAL_LEDOff(LED4);
-        STM_EVAL_LEDOff(LED5);
-        STM_EVAL_LEDOff(LED7);
-        STM_EVAL_LEDOff(LED8);
-        STM_EVAL_LEDOff(LED9);
-        STM_EVAL_LEDOff(LED10);
+        HandleNewDir(WEST);
       }
     }
     else if (  AbsAccBuffer[2] > ACCEL_MULT*AbsAccBuffer[1]
             && AbsAccBuffer[2] > ACCEL_MULT*AbsAccBuffer[0] ){
       if(AccBuffer[2] > 0){
-        STM_EVAL_LEDOn(LED5);
-        STM_EVAL_LEDOn(LED8);
-        
-        STM_EVAL_LEDOff(LED3);
-        STM_EVAL_LEDOff(LED4);
-        STM_EVAL_LEDOff(LED6);
-        STM_EVAL_LEDOff(LED7);
-        STM_EVAL_LEDOff(LED9);
-        STM_EVAL_LEDOff(LED10);
+        HandleNewDir(UP);
       }
       else{
-        STM_EVAL_LEDOn(LED4);
-        STM_EVAL_LEDOn(LED9);
-        
-        STM_EVAL_LEDOff(LED3);
-        STM_EVAL_LEDOff(LED5);
-        STM_EVAL_LEDOff(LED6);
-        STM_EVAL_LEDOff(LED7);
-        STM_EVAL_LEDOff(LED8);
-        STM_EVAL_LEDOff(LED10);
+        HandleNewDir(DOWN);
       }
-    }
-    else{
-      /* LEDs Off */
-      STM_EVAL_LEDOff(LED4);
-      STM_EVAL_LEDOff(LED3);
-      STM_EVAL_LEDOff(LED6);
-      STM_EVAL_LEDOff(LED7);
-      STM_EVAL_LEDOff(LED10);
-      STM_EVAL_LEDOff(LED8);
-      STM_EVAL_LEDOff(LED9);
-      STM_EVAL_LEDOff(LED5);
     }
   }
 }
