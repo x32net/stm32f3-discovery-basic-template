@@ -9,21 +9,21 @@
 
 // Pin Definitions:
 
-// PA4 - TIM3_CH2 (AF2)
+// PB5 - TIM3_CH2 (AF2)
 
 void servo_init() {
   // Enable the GPIO Clocks
-  RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOA, ENABLE);
+  RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOB, ENABLE);
 
   // configure pins
   GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-  GPIO_PinAFConfig(GPIOA, GPIO_PinSource4, GPIO_AF_2);
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIOB, GPIO_PinSource5, GPIO_AF_2);
 
   // Enable Timer clocks
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);

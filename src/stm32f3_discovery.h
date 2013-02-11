@@ -87,37 +87,37 @@ typedef enum
   */
 #define LEDn                             8
 
-#define LED6_PIN                         GPIO_Pin_15
-#define LED6_GPIO_PORT                   GPIOE
-#define LED6_GPIO_CLK                    RCC_AHBPeriph_GPIOE  
+#define LED6_PIN                         GPIO_Pin_7
+#define LED6_GPIO_PORT                   GPIOD
+#define LED6_GPIO_CLK                    RCC_AHBPeriph_GPIOD
 
-#define LED8_PIN                         GPIO_Pin_14
-#define LED8_GPIO_PORT                   GPIOE
-#define LED8_GPIO_CLK                    RCC_AHBPeriph_GPIOE  
+#define LED8_PIN                         GPIO_Pin_6
+#define LED8_GPIO_PORT                   GPIOD
+#define LED8_GPIO_CLK                    RCC_AHBPeriph_GPIOD
   
-#define LED10_PIN                        GPIO_Pin_13
-#define LED10_GPIO_PORT                  GPIOE
-#define LED10_GPIO_CLK                   RCC_AHBPeriph_GPIOE  
+#define LED10_PIN                        GPIO_Pin_5
+#define LED10_GPIO_PORT                  GPIOD
+#define LED10_GPIO_CLK                   RCC_AHBPeriph_GPIOD
   
-#define LED9_PIN                         GPIO_Pin_12
-#define LED9_GPIO_PORT                   GPIOE
-#define LED9_GPIO_CLK                    RCC_AHBPeriph_GPIOE 
+#define LED9_PIN                         GPIO_Pin_4
+#define LED9_GPIO_PORT                   GPIOD
+#define LED9_GPIO_CLK                    RCC_AHBPeriph_GPIOD
   
-#define LED7_PIN                         GPIO_Pin_11
-#define LED7_GPIO_PORT                   GPIOE
-#define LED7_GPIO_CLK                    RCC_AHBPeriph_GPIOE 
+#define LED7_PIN                         GPIO_Pin_3
+#define LED7_GPIO_PORT                   GPIOD
+#define LED7_GPIO_CLK                    RCC_AHBPeriph_GPIOD
 
-#define LED5_PIN                         GPIO_Pin_10
-#define LED5_GPIO_PORT                   GPIOE
-#define LED5_GPIO_CLK                    RCC_AHBPeriph_GPIOE 
+#define LED5_PIN                         GPIO_Pin_2
+#define LED5_GPIO_PORT                   GPIOD
+#define LED5_GPIO_CLK                    RCC_AHBPeriph_GPIOD
 
-#define LED3_PIN                         GPIO_Pin_9
-#define LED3_GPIO_PORT                   GPIOE
-#define LED3_GPIO_CLK                    RCC_AHBPeriph_GPIOE 
+#define LED3_PIN                         GPIO_Pin_1
+#define LED3_GPIO_PORT                   GPIOD
+#define LED3_GPIO_CLK                    RCC_AHBPeriph_GPIOD
 
-#define LED4_PIN                         GPIO_Pin_8
-#define LED4_GPIO_PORT                   GPIOE
-#define LED4_GPIO_CLK                    RCC_AHBPeriph_GPIOE 
+#define LED4_PIN                         GPIO_Pin_0
+#define LED4_GPIO_PORT                   GPIOD
+#define LED4_GPIO_CLK                    RCC_AHBPeriph_GPIOD
 /**
   * @}
   */ 

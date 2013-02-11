@@ -57,18 +57,11 @@ void SysTick_Handler(void)
 {
   TimingDelay_Decrement();
   DataReady ++;
-  ServoTimer ++;
-  if(ServoTimer < 200) { //every 2 sec
-	servo_set_pos(550);
-  }
-  else if(ServoTimer < 400) {
-	servo_set_pos(1425);
-  }
-  else if(ServoTimer < 600) {
-	servo_set_pos(2300);
+  if(STM_EVAL_PBGetState(BUTTON_USER)){
+    servo_set_pos(2000);
   }
   else{
-    ServoTimer = 0;
+    servo_set_pos(550);
   }
 
   beep_tick();
@@ -105,6 +98,7 @@ int main(void)
   servo_init();
   beep_init();
   led_init();
+  STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_GPIO);
   
   /* Demo Compass & accelerometer */
   Demo_CompassConfig();

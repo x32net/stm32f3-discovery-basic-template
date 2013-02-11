@@ -11,24 +11,24 @@ __IO uint8_t BeepOn = 0;
 
 // Pin Definitions:
 
-// PD12 - TIM4_CH1 (AF2)
+// PA10 - TIM2_CH4 (AF10)
 
 void beep_init() {
   // Enable the GPIO Clocks
-  RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOD, ENABLE);
+  RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOA, ENABLE);
 
   // configure pins
   GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
-  GPIO_Init(GPIOD, &GPIO_InitStructure);
-  GPIO_PinAFConfig(GPIOD, GPIO_PinSource12, GPIO_AF_2);
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_10);
 
   // Enable Timer clocks
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 
   /* Time Base configuration */
 
@@ -48,7 +48,7 @@ void beep_init() {
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;
   TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
 
-  TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
+  TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
 
   /* Channel 1, 2, 3 and 4 Configuration in PWM mode */
   TIM_OCInitTypeDef  TIM_OCInitStructure;
@@ -61,10 +61,10 @@ void beep_init() {
   TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset;
 
   TIM_OCInitStructure.TIM_Pulse = 1250;
-  TIM_OC1Init(TIM4, &TIM_OCInitStructure); //set up channel 1
+  TIM_OC4Init(TIM2, &TIM_OCInitStructure); //set up channel 4
 
   /* TIM1 counter enable */
-  TIM_Cmd(TIM4, DISABLE);
+  TIM_Cmd(TIM2, DISABLE);
 
   /* TIM1 Main Output Disable */
 //  TIM_CtrlPWMOutputs(TIM4, DISABLE); //this doesn't work on TIM4
@@ -72,24 +72,25 @@ void beep_init() {
 }
 
 void beep_on(uint8_t high){
+  beep_init();  //Why do I have to do this?!
   if(high == 1){
-    TIM_SetAutoreload(TIM4,1250);
-    TIM_SetCompare1(TIM4, 625);
+    TIM_SetAutoreload(TIM2,1250);
+    TIM_SetCompare4(TIM2, 625);
   }
   else{
-	TIM_SetAutoreload(TIM4,5000);
-	TIM_SetCompare1(TIM4, 2500);
+    TIM_SetAutoreload(TIM2,5000);
+    TIM_SetCompare4(TIM2, 2500);
   }
-  TIM_Cmd(TIM4, ENABLE);
+  TIM_Cmd(TIM2, ENABLE);
   BeepOn = 25;
 }
 
 void beep_tick(){
   if(BeepOn == 1){
-	  TIM_Cmd(TIM4, DISABLE);
+    TIM_Cmd(TIM2, DISABLE);
     BeepOn = 0;
   }
   else if(BeepOn != 0){
-	BeepOn--;
+    BeepOn--;
   }
 }
