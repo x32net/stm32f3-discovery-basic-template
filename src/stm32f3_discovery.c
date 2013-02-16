@@ -72,12 +72,20 @@
   */ 
 GPIO_TypeDef* GPIO_PORT[LEDn] = {LED3_GPIO_PORT, LED4_GPIO_PORT, LED5_GPIO_PORT,
                                  LED6_GPIO_PORT, LED7_GPIO_PORT, LED8_GPIO_PORT,
-                                 LED9_GPIO_PORT, LED10_GPIO_PORT };
+                                 LED9_GPIO_PORT, LED10_GPIO_PORT,
+                                 ORIG_LED3_GPIO_PORT, ORIG_LED4_GPIO_PORT, ORIG_LED5_GPIO_PORT,
+                                 ORIG_LED6_GPIO_PORT, ORIG_LED7_GPIO_PORT, ORIG_LED8_GPIO_PORT,
+                                 ORIG_LED9_GPIO_PORT, ORIG_LED10_GPIO_PORT };
 const uint16_t GPIO_PIN[LEDn] = {LED3_PIN, LED4_PIN, LED5_PIN, LED6_PIN,
-                                 LED7_PIN, LED8_PIN, LED9_PIN, LED10_PIN};
+                                 LED7_PIN, LED8_PIN, LED9_PIN, LED10_PIN,
+                                 ORIG_LED3_PIN, ORIG_LED4_PIN, ORIG_LED5_PIN, ORIG_LED6_PIN,
+                                 ORIG_LED7_PIN, ORIG_LED8_PIN, ORIG_LED9_PIN, ORIG_LED10_PIN};
 const uint32_t GPIO_CLK[LEDn] = {LED3_GPIO_CLK, LED4_GPIO_CLK, LED5_GPIO_CLK,
                                  LED6_GPIO_CLK, LED7_GPIO_CLK, LED8_GPIO_CLK,
-                                 LED9_GPIO_CLK, LED10_GPIO_CLK};
+                                 LED9_GPIO_CLK, LED10_GPIO_CLK,
+                                 ORIG_LED3_GPIO_CLK, ORIG_LED4_GPIO_CLK, ORIG_LED5_GPIO_CLK,
+                                 ORIG_LED6_GPIO_CLK, ORIG_LED7_GPIO_CLK, ORIG_LED8_GPIO_CLK,
+                                 ORIG_LED9_GPIO_CLK, ORIG_LED10_GPIO_CLK};
 
 GPIO_TypeDef* BUTTON_PORT[BUTTONn] = {USER_BUTTON_GPIO_PORT }; 
 

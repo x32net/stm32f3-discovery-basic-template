@@ -10,9 +10,14 @@
 
 #include "stm32f30x_conf.h"
 
+typedef enum{
+  BEEP_LO,
+  BEEP_HI
+} Beep_t;
+
 void beep_init();
 
-void beep_on(uint8_t high);
+void beep_on(Beep_t high);
 void beep_tick();
 
 #endif /* BEEP_H_ */

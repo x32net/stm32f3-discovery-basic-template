@@ -21,6 +21,15 @@ void led_all_off(){
   STM_EVAL_LEDOff(LED8);
   STM_EVAL_LEDOff(LED9);
   STM_EVAL_LEDOff(LED5);
+
+  STM_EVAL_LEDOff(ORIG_LED4);
+  STM_EVAL_LEDOff(ORIG_LED3);
+  STM_EVAL_LEDOff(ORIG_LED6);
+  STM_EVAL_LEDOff(ORIG_LED7);
+  STM_EVAL_LEDOff(ORIG_LED10);
+  STM_EVAL_LEDOff(ORIG_LED8);
+  STM_EVAL_LEDOff(ORIG_LED9);
+  STM_EVAL_LEDOff(ORIG_LED5);
 }
 
 void led_init(){
@@ -35,28 +44,31 @@ void led_init(){
   STM_EVAL_LEDInit(LED9);
   STM_EVAL_LEDInit(LED10);
 
+  STM_EVAL_LEDInit(ORIG_LED3);
+  STM_EVAL_LEDInit(ORIG_LED4);
+  STM_EVAL_LEDInit(ORIG_LED5);
+  STM_EVAL_LEDInit(ORIG_LED6);
+  STM_EVAL_LEDInit(ORIG_LED7);
+  STM_EVAL_LEDInit(ORIG_LED8);
+  STM_EVAL_LEDInit(ORIG_LED9);
+  STM_EVAL_LEDInit(ORIG_LED10);
+
   led_all_off();
 }
 
 void led_set_indication(Indication_t ind){
   LEDInd = ind;
-  LEDSeq = 0;
 }
 
 void led_do_NS_sweep(){
   led_all_off();
-  uint8_t mySeq = LEDSeq/25;
+  uint8_t mySeq = LEDSeq/20;
   if(LEDInd == IND_SN){
-    mySeq = 3-mySeq;
+    mySeq = 4-mySeq;
   }
   switch(mySeq){
   case 0:
-    if(LEDInd == IND_NS){
-      STM_EVAL_LEDOn(LED3);
-    }
-    else{
-      STM_EVAL_LEDOn(LED10);
-    }
+    STM_EVAL_LEDOn(LED3);
     break;
   case 1:
     STM_EVAL_LEDOn(LED5);
@@ -70,23 +82,21 @@ void led_do_NS_sweep(){
     STM_EVAL_LEDOn(LED9);
     STM_EVAL_LEDOn(LED8);
     break;
+  case 4:
+    STM_EVAL_LEDOn(LED10);
+    break;
   }
 }
 
 void led_do_EW_sweep(){
   led_all_off();
-  uint8_t mySeq = LEDSeq/25;
+  uint8_t mySeq = LEDSeq/20;
   if(LEDInd == IND_WE){
-    mySeq = 3-mySeq;
+    mySeq = 4-mySeq;
   }
   switch(mySeq){
   case 0:
-    if(LEDInd == IND_EW){
-      STM_EVAL_LEDOn(LED7);
-    }
-    else{
-      STM_EVAL_LEDOn(LED6);
-    }
+    STM_EVAL_LEDOn(LED7);
     break;
   case 1:
     STM_EVAL_LEDOn(LED5);
@@ -99,6 +109,9 @@ void led_do_EW_sweep(){
   case 3:
     STM_EVAL_LEDOn(LED8);
     STM_EVAL_LEDOn(LED4);
+    break;
+  case 4:
+    STM_EVAL_LEDOn(LED6);
     break;
   }
 }
@@ -129,27 +142,55 @@ void led_do_rotation(){
   }
 }
 
+void led_do_static(){
+  switch(LEDInd){
+  case IND_IMPOSSIBLE:
+    STM_EVAL_LEDOn(LED9);
+    STM_EVAL_LEDOn(LED10);
+    STM_EVAL_LEDOn(LED8);
+  case IND_HARD:
+    STM_EVAL_LEDOn(LED7);
+    STM_EVAL_LEDOn(LED6);
+  case IND_MED:
+    STM_EVAL_LEDOn(LED5);
+    STM_EVAL_LEDOn(LED4);
+  case IND_EASY:
+    STM_EVAL_LEDOn(LED3);
+    break;
+  }
+}
+
 void led_tick(){
   if((++LEDSeq) == 100){ //if we need 6, this can be 150
     LEDSeq = 0;
   }
-  if((LEDSeq % 25) == 0){
-    switch(LEDInd){
-    case IND_NS:
-    case IND_SN:
+  switch(LEDInd){
+  case IND_NS:
+  case IND_SN:
+    if((LEDSeq % 20) == 0){
       led_do_NS_sweep();
-      break;
-    case IND_EW:
-    case IND_WE:
-      led_do_EW_sweep();
-      break;
-    case IND_CW:
-    case IND_CCW:
-      led_do_rotation();
-      break;
-    default:
-      led_all_off();
-      break;
     }
+    break;
+  case IND_EW:
+  case IND_WE:
+    if((LEDSeq % 20) == 0){
+      led_do_EW_sweep();
+    }
+    break;
+  case IND_CW:
+  case IND_CCW:
+    if((LEDSeq % 25) == 0){
+      led_do_rotation();
+    }
+    break;
+  case IND_EASY:
+  case IND_MED:
+  case IND_HARD:
+  case IND_IMPOSSIBLE:
+    led_do_static();
+    break;
+  default:
+    led_all_off();
+    break;
   }
 }

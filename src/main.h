@@ -18,4 +18,12 @@ typedef enum{
   DOWN = 5
 } Direction_t;
 
+typedef enum{
+  STATE_INIT,
+  STATE_OPEN,
+  STATE_GYRO,
+  STATE_PUZZLE,
+  STATE_WON
+} State_t;
+
 #endif /* MAIN_H_ */

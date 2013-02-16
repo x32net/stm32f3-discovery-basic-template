@@ -5,6 +5,8 @@
 #include "beep.h"
 #include "main.h"
 #include "led.h"
+#include "button.h"
+#include "gyro.h"
 
 #define ABS(x)         (x < 0) ? (-x) : x
 #define PI                         (float)     3.14159265f
@@ -15,6 +17,12 @@
 #define LSM_Acc_Sensitivity_8g     (float)     0.25f           /*!< accelerometer sensitivity with 8 g full scale [LSB/mg] */
 #define LSM_Acc_Sensitivity_16g    (float)     0.0834f         /*!< accelerometer sensitivity with 12 g full scale [LSB/mg] */
 
+typedef enum{
+  DIFF_EASY = 0, //sounds on, LEDs always lit
+  DIFF_MED = 1, //sounds on, LEDs lit for already known paths
+  DIFF_HARD = 2,  //sounds on, no LEDs
+  DIFF_IMPOSSIBLE = 3 //no sound, no LEDs
+} Difficulty_t;
 
 /* Private variables ---------------------------------------------------------*/
 RCC_ClocksTypeDef RCC_Clocks;
@@ -23,6 +31,9 @@ __IO uint16_t     ServoTimer  = 0;
 __IO uint8_t      DataReady   = 0;
 __IO Direction_t  LastDir     = UP;
 __IO uint8_t      DirPos      = 0;
+__IO uint8_t      BestDirPos  = 0;
+__IO State_t      State       = STATE_INIT;
+     Difficulty_t MyDifficulty = DIFF_EASY;
 float AccBuffer[3] = {0.0f};
 float AbsAccBuffer[3] = {0.0f};
 const Indication_t IndicationMap[6][6] =
@@ -34,8 +45,12 @@ const Indication_t IndicationMap[6][6] =
     {IND_NS,  IND_SN,  IND_EW,  IND_WE,  IND_INV, IND_INV},
     {IND_SN,  IND_NS,  IND_WE,  IND_EW,  IND_INV, IND_INV}
 };
-const Direction_t DirList[12] =
-{ NORTH, EAST, DOWN, SOUTH, WEST, NORTH, UP, WEST, SOUTH, EAST, SOUTH, UP };
+const int NumDir = 13;
+const Direction_t DirList[13] =
+{ UP, NORTH, EAST, DOWN, SOUTH, WEST, NORTH, UP, WEST, SOUTH, EAST, SOUTH, UP };
+//const int NumDir = 3;
+//const Direction_t DirList[3] =
+//{ UP, NORTH, UP };
 
 /* Private function prototypes -----------------------------------------------*/
 void TimingDelay_Decrement(void);
@@ -57,31 +72,141 @@ void SysTick_Handler(void)
 {
   TimingDelay_Decrement();
   DataReady ++;
-  if(STM_EVAL_PBGetState(BUTTON_USER)){
-    servo_set_pos(2000);
-  }
-  else{
-    servo_set_pos(550);
-  }
-
   beep_tick();
   led_tick();
+  GyroTick();
 }
 
 void HandleNewDir(Direction_t dir){
   if(dir == DirList[DirPos] ){
-    beep_on(1);
-    LastDir = dir;
-    if(++DirPos == 12){
-      DirPos = 0;
+    if(MyDifficulty != DIFF_IMPOSSIBLE){
+      beep_on(BEEP_HI);
     }
-    led_set_indication(IndicationMap[dir][DirList[DirPos]]);
+    LastDir = dir;
+    if(++DirPos == NumDir){
+      State = STATE_WON;
+      BestDirPos = 0;
+      return;
+    }
+    if(DirPos > BestDirPos){
+      BestDirPos = DirPos;
+    }
+    if(MyDifficulty == DIFF_EASY
+      || (MyDifficulty == DIFF_MED && DirPos < BestDirPos)
+      ) {
+      led_set_indication(IndicationMap[dir][DirList[DirPos]]);
+    }
+    else{
+      led_set_indication(IND_INV);
+    }
   }
   else if(dir == LastDir){
     //do nothing
   }
   else{
-    beep_on(0);
+    if(MyDifficulty != DIFF_IMPOSSIBLE){
+      beep_on(BEEP_LO);
+    }
+    LastDir = UP;
+    DirPos = 0;
+    led_set_indication(IND_INV);
+  }
+}
+
+void DoPuzzle(){
+  /* Wait for data ready */
+  while(DataReady !=0x05)
+  {}
+  DataReady = 0x00;
+
+  /* Read Accelerometer data */
+  Demo_CompassReadAcc(AccBuffer);
+
+  for(int i=0;i<3;i++) {
+    AccBuffer[i] /= 100.0f;
+  }
+  for(int i=0; i<3; i++){
+    AbsAccBuffer[i] = ABS(AccBuffer[i]);
+  }
+
+  if (  AbsAccBuffer[0] > ACCEL_MULT*AbsAccBuffer[1]
+     && AbsAccBuffer[0] > ACCEL_MULT*AbsAccBuffer[2] ){
+    if(AccBuffer[0] > 0){
+      HandleNewDir(SOUTH);
+    }
+    else{
+      HandleNewDir(NORTH);
+    }
+  }
+  else if (  AbsAccBuffer[1] > ACCEL_MULT*AbsAccBuffer[0]
+          && AbsAccBuffer[1] > ACCEL_MULT*AbsAccBuffer[2] ){
+    if(AccBuffer[1] > 0){
+      HandleNewDir(EAST);
+    }
+    else{
+      HandleNewDir(WEST);
+    }
+  }
+  else if (  AbsAccBuffer[2] > ACCEL_MULT*AbsAccBuffer[1]
+          && AbsAccBuffer[2] > ACCEL_MULT*AbsAccBuffer[0] ){
+    if(AccBuffer[2] > 0){
+      HandleNewDir(UP);
+    }
+    else{
+      HandleNewDir(DOWN);
+    }
+  }
+}
+
+int GyroDir = 0;
+
+void DoGyro(){
+  float pos = GyroReadAngPos();
+  if(GyroDir == 0){
+    if(pos > 22.5){
+      GyroDir = 1;
+      STM_EVAL_LEDOn(ORIG_LED3);
+      beep_on(BEEP_HI);
+      MyDifficulty = DIFF_EASY;
+      led_set_indication(IND_EASY);
+    }
+    else if(pos < -22.5){
+      GyroDir = -1;
+      STM_EVAL_LEDOn(ORIG_LED3);
+      beep_on(BEEP_HI);
+      MyDifficulty = DIFF_EASY;
+      led_set_indication(IND_EASY);
+    }
+  }
+  else{
+    pos = pos * GyroDir;
+    if(pos < 0){
+      STM_EVAL_LEDOn(ORIG_LED10);
+      beep_on(BEEP_HI);
+      led_set_indication(IND_INV);
+      State = STATE_PUZZLE;
+    }
+    else if(pos > 45 && MyDifficulty ==DIFF_EASY){
+      beep_on(BEEP_HI);
+      STM_EVAL_LEDOn(ORIG_LED5);
+      STM_EVAL_LEDOn(ORIG_LED4);
+      MyDifficulty = DIFF_MED;
+      led_set_indication(IND_MED);
+    }
+    else if(pos > 67.5 && MyDifficulty ==DIFF_MED){
+      beep_on(BEEP_HI);
+      STM_EVAL_LEDOn(ORIG_LED7);
+      STM_EVAL_LEDOn(ORIG_LED6);
+      MyDifficulty = DIFF_HARD;
+      led_set_indication(IND_HARD);
+    }
+    else if(pos > 90 && MyDifficulty ==DIFF_HARD){
+      beep_on(BEEP_HI);
+      STM_EVAL_LEDOn(ORIG_LED9);
+      STM_EVAL_LEDOn(ORIG_LED8);
+      MyDifficulty = DIFF_IMPOSSIBLE;
+      led_set_indication(IND_IMPOSSIBLE);
+    }
   }
 }
 
@@ -98,6 +223,8 @@ int main(void)
   servo_init();
   beep_init();
   led_init();
+  button_init();
+  GyroInit();
   STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_GPIO);
   
   /* Demo Compass & accelerometer */
@@ -105,54 +232,77 @@ int main(void)
   
   DataReady = 0x00;
 
-  led_set_indication(IndicationMap[UP][DirList[0]]);
+//  led_set_indication(IndicationMap[UP][DirList[0]]);
 
   /* Infinite loop */
   while (1)
   {   
-        
-    /* Wait for data ready */
-    while(DataReady !=0x05)
-    {}
-    DataReady = 0x00;
-    
-    /* Read Accelerometer data */
-    Demo_CompassReadAcc(AccBuffer);
-      
-    for(int i=0;i<3;i++) {
-      AccBuffer[i] /= 100.0f;
-    }
-    for(int i=0; i<3; i++){
-      AbsAccBuffer[i] = ABS(AccBuffer[i]);
+    switch(State){
+    case STATE_INIT:
+      if(button_state()){
+        servo_close();
+        GyroZeroAndEnable();
+        led_set_indication(IND_INV);
+        State = STATE_GYRO;
+      }
+      else{
+        servo_open();
+        State = STATE_OPEN;
+      }
+      break;
+    case STATE_OPEN:
+      led_set_indication(IND_INV);
+      if(button_state()){
+        Delay(50); //wait half a second
+        servo_close();
+        GyroZeroAndEnable();
+        led_set_indication(IND_INV);
+        State = STATE_GYRO;
+      }
+      else{
+        //box is still open, do nothing
+      }
+      break;
+    case STATE_GYRO:
+      //if the box is open, we can't continue the puzzle
+      if(!button_state()){
+        servo_open();
+        LastDir = UP;
+        DirPos = 0;
+        GyroDir = 0;
+        MyDifficulty = DIFF_EASY;
+        State = STATE_OPEN;
+        break;
+      }
+      DoGyro();
+      break;
+    case STATE_PUZZLE:
+      //if the box is open, we can't continue the puzzle
+      if(!button_state()){
+        servo_open();
+        LastDir = UP;
+        DirPos = 0;
+        GyroDir = 0;
+        MyDifficulty = DIFF_EASY;
+        State = STATE_OPEN;
+        break;
+      }
+      //else...
+      DoPuzzle();
+      break;
+    case STATE_WON:
+      led_set_indication(IND_INV);
+      servo_open();
+      LastDir = UP;
+      DirPos = 0;
+      GyroDir = 0;
+      MyDifficulty = DIFF_EASY;
+      if(!button_state()){
+        State = STATE_OPEN;
+      }
+      break;
     }
 
-    if (  AbsAccBuffer[0] > ACCEL_MULT*AbsAccBuffer[1]
-       && AbsAccBuffer[0] > ACCEL_MULT*AbsAccBuffer[2] ){
-      if(AccBuffer[0] > 0){
-        HandleNewDir(SOUTH);
-      }
-      else{
-        HandleNewDir(NORTH);
-      }
-    }
-    else if (  AbsAccBuffer[1] > ACCEL_MULT*AbsAccBuffer[0]
-            && AbsAccBuffer[1] > ACCEL_MULT*AbsAccBuffer[2] ){
-      if(AccBuffer[1] > 0){
-        HandleNewDir(EAST);
-      }
-      else{
-        HandleNewDir(WEST);
-      }
-    }
-    else if (  AbsAccBuffer[2] > ACCEL_MULT*AbsAccBuffer[1]
-            && AbsAccBuffer[2] > ACCEL_MULT*AbsAccBuffer[0] ){
-      if(AccBuffer[2] > 0){
-        HandleNewDir(UP);
-      }
-      else{
-        HandleNewDir(DOWN);
-      }
-    }
   }
 }
 
@@ -299,6 +449,16 @@ void TimingDelay_Decrement(void)
   * @retval None.
   */
 uint32_t LSM303DLHC_TIMEOUT_UserCallback(void)
+{
+  return 0;
+}
+
+/**
+  * @brief  Basic management of the timeout situation.
+  * @param  None.
+  * @retval None.
+  */
+uint32_t L3GD20_TIMEOUT_UserCallback(void)
 {
   return 0;
 }

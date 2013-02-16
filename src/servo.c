@@ -70,3 +70,9 @@ void servo_init() {
 void servo_set_pos(uint32_t pos){
   TIM_SetCompare2(TIM3, pos);
 }
+void servo_open(){
+  TIM_SetCompare2(TIM3, 550);
+}
+void servo_close(){
+  TIM_SetCompare2(TIM3, 2000);
+}

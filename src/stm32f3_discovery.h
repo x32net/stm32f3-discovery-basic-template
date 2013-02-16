@@ -61,7 +61,15 @@ typedef enum
   LED7 = 4,
   LED8 = 5,
   LED9 = 6,
-  LED10 = 7
+  LED10 = 7,
+  ORIG_LED3 = 8,
+  ORIG_LED4 = 9,
+  ORIG_LED5 = 10,
+  ORIG_LED6 = 11,
+  ORIG_LED7 = 12,
+  ORIG_LED8 = 13,
+  ORIG_LED9 = 14,
+  ORIG_LED10 = 15
 } Led_TypeDef;
 
 typedef enum 
@@ -85,7 +93,7 @@ typedef enum
 /** @addtogroup STM32F3_DISCOVERY_LOW_LEVEL_LED
   * @{
   */
-#define LEDn                             8
+#define LEDn                             16
 
 #define LED6_PIN                         GPIO_Pin_7
 #define LED6_GPIO_PORT                   GPIOD
@@ -118,6 +126,38 @@ typedef enum
 #define LED4_PIN                         GPIO_Pin_0
 #define LED4_GPIO_PORT                   GPIOD
 #define LED4_GPIO_CLK                    RCC_AHBPeriph_GPIOD
+
+#define ORIG_LED6_PIN                         GPIO_Pin_15
+#define ORIG_LED6_GPIO_PORT                   GPIOE
+#define ORIG_LED6_GPIO_CLK                    RCC_AHBPeriph_GPIOE
+
+#define ORIG_LED8_PIN                         GPIO_Pin_14
+#define ORIG_LED8_GPIO_PORT                   GPIOE
+#define ORIG_LED8_GPIO_CLK                    RCC_AHBPeriph_GPIOE
+
+#define ORIG_LED10_PIN                        GPIO_Pin_13
+#define ORIG_LED10_GPIO_PORT                  GPIOE
+#define ORIG_LED10_GPIO_CLK                   RCC_AHBPeriph_GPIOE
+
+#define ORIG_LED9_PIN                         GPIO_Pin_12
+#define ORIG_LED9_GPIO_PORT                   GPIOE
+#define ORIG_LED9_GPIO_CLK                    RCC_AHBPeriph_GPIOE
+
+#define ORIG_LED7_PIN                         GPIO_Pin_11
+#define ORIG_LED7_GPIO_PORT                   GPIOE
+#define ORIG_LED7_GPIO_CLK                    RCC_AHBPeriph_GPIOE
+
+#define ORIG_LED5_PIN                         GPIO_Pin_10
+#define ORIG_LED5_GPIO_PORT                   GPIOE
+#define ORIG_LED5_GPIO_CLK                    RCC_AHBPeriph_GPIOE
+
+#define ORIG_LED3_PIN                         GPIO_Pin_9
+#define ORIG_LED3_GPIO_PORT                   GPIOE
+#define ORIG_LED3_GPIO_CLK                    RCC_AHBPeriph_GPIOE
+
+#define ORIG_LED4_PIN                         GPIO_Pin_8
+#define ORIG_LED4_GPIO_PORT                   GPIOE
+#define ORIG_LED4_GPIO_CLK                    RCC_AHBPeriph_GPIOE
 /**
   * @}
   */ 

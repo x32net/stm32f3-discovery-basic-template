@@ -13,5 +13,7 @@
 void servo_init();
 
 void servo_set_pos(uint32_t pos);
+void servo_open();
+void servo_close();
 
 #endif /* SERVO_H_ */

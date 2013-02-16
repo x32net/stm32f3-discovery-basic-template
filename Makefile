@@ -1,5 +1,7 @@
 # put your *.o targets here, make should handle the rest!
-SRCS = main.c errno.c stm32f3_discovery.c stm32f3_discovery_lsm303dlhc.c system_stm32f30x.c servo.c beep.c led.c
+SRCS = main.c errno.c stm32f3_discovery.c stm32f3_discovery_lsm303dlhc.c \
+      system_stm32f30x.c servo.c beep.c led.c button.c stm32f3_discovery_l3gd20.c \
+      gyro.c
 
 # all the files will be generated with this name (main.elf, main.bin, main.hex, etc)
 PROJ_NAME=main
@@ -26,7 +28,7 @@ OBJCOPY=arm-none-eabi-objcopy
 OBJDUMP=arm-none-eabi-objdump
 SIZE=arm-none-eabi-size
 
-CFLAGS  = -Wall -g -std=c99 -Os  
+CFLAGS  = -Wall -Wno-switch -g -std=c99 -Os  
 CFLAGS += -mlittle-endian -mcpu=cortex-m4  -march=armv7e-m -mthumb
 CFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 CFLAGS += -ffunction-sections -fdata-sections

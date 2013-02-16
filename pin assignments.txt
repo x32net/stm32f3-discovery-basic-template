@@ -1,0 +1,38 @@
+PA
+8
+9 - TIM2_CH3 - switch signal
+10 - TIM2_CH4 - buzzer
+15 - TIM2_CH1
+
+PB
+4 - TIM3_CH1
+5 - TIM3_CH2 - servo
+8 - TIM4_CH3
+9 - TIM4_CH4
+
+PC
+8 - TIM3_CH3
+9 - TIM3_CH4 - switch gnd/vdd
+10
+11
+12
+13
+
+PD - Heart LEDs
+0
+1
+2
+3 - TIM2_CH1
+4 - TIM2_CH2
+5
+6
+7
+
+PE
+6
+8-15 on-board LEDs
+
+PF
+6 - TIM4_CH4
+9
+10
