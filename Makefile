@@ -82,7 +82,7 @@ program: $(PROJ_NAME).bin
 	touch program
 
 debug: $(PROJ_NAME).elf program
-	$(GDB) -x gdb_cmds $(PROJ_NAME).elf
+	$(GDB) -x extra/gdb_cmds $(PROJ_NAME).elf
 
 clean:
 	find ./ -name '*~' | xargs rm -f	
