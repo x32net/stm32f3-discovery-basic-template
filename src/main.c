@@ -7,6 +7,7 @@
 #include "led.h"
 #include "button.h"
 #include "gyro.h"
+#include <stdlib.h>
 
 #define ABS(x)         (x < 0) ? (-x) : x
 #define PI                         (float)     3.14159265f
@@ -33,6 +34,7 @@ __IO Direction_t  LastDir     = UP;
 __IO uint8_t      DirPos      = 0;
 __IO uint8_t      BestDirPos  = 0;
 __IO State_t      State       = STATE_INIT;
+__IO unsigned int Seed = 0;
      Difficulty_t MyDifficulty = DIFF_EASY;
 float AccBuffer[3] = {0.0f};
 float AbsAccBuffer[3] = {0.0f};
@@ -46,7 +48,7 @@ const Indication_t IndicationMap[6][6] =
     {IND_SN,  IND_NS,  IND_WE,  IND_EW,  IND_INV, IND_INV}
 };
 const int NumDir = 13;
-const Direction_t DirList[13] =
+Direction_t DirList[13] =
 { UP, NORTH, EAST, DOWN, SOUTH, WEST, NORTH, UP, WEST, SOUTH, EAST, SOUTH, UP };
 //const int NumDir = 3;
 //const Direction_t DirList[3] =
@@ -75,6 +77,20 @@ void SysTick_Handler(void)
   beep_tick();
   led_tick();
   GyroTick();
+}
+
+void GenerateDirList(){
+  srand(Seed);
+  int myDirPos = 1; //the first direction must always be "UP"
+  while(myDirPos < (NumDir-1)){
+    DirList[myDirPos] = (Direction_t)(rand() % 6);
+    if(IndicationMap[DirList[myDirPos-1]][DirList[myDirPos]] != IND_INV ){ //legitimate move
+      if(myDirPos != (NumDir-2)
+          || IndicationMap[DirList[myDirPos]][UP] != IND_INV){
+        myDirPos++;
+      }
+    }
+  }
 }
 
 void HandleNewDir(Direction_t dir){
@@ -184,6 +200,7 @@ void DoGyro(){
       STM_EVAL_LEDOn(ORIG_LED10);
       beep_on(BEEP_HI);
       led_set_indication(IND_INV);
+      GenerateDirList();
       State = STATE_PUZZLE;
     }
     else if(pos > 45 && MyDifficulty ==DIFF_EASY){

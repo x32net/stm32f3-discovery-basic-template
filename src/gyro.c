@@ -8,6 +8,7 @@
 
 
 #include "stm32f3_discovery_l3gd20.h"
+extern unsigned int Seed; //from main.cc to initialize the rand num gen
 
 #define L3G_Sensitivity_250dps     (float)   114.285f         /*!< gyroscope sensitivity with 250 dps full scale [LSB/dps] */
 #define L3G_Sensitivity_500dps     (float)    57.1429f        /*!< gyroscope sensitivity with 500 dps full scale [LSB/dps] */
@@ -96,6 +97,7 @@ void GyroReadAngRate (float* pfData)
   /* divide by sensitivity */
   for(i=0; i<3; i++)
   {
+    Seed += RawData[i];
     pfData[i]=(float)RawData[i]/sensitivity;
   }
 }
