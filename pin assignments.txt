@@ -1,26 +1,26 @@
 PA
-8
-9 - TIM2_CH3 - switch signal
-10 - TIM2_CH4 - buzzer
-15 - TIM2_CH1
+8 - TIM1_CH1
+9 - TIM1_CH2 TIM2_CH3 - switch signal - buzz+?
+10 - TIM1_CH3 TIM2_CH4 - buzzer
+15 - TIM2_CH1 TIM8_CH1 - buzz-?
 
 PB
-4 - TIM3_CH1
-5 - TIM3_CH2 - servo
-8 - TIM4_CH3
-9 - TIM4_CH4
+4 - TIM3_CH1 TIM8_CH2N - buzz-?
+5 - TIM8_CH3N TIM3_CH2 - servo
+8 - TIM8_CH2 TIM4_CH3 - buzz+?
+9 - TIM8_CH3 TIM4_CH4
 
 PC
-8 - TIM3_CH3
-9 - TIM3_CH4 - switch gnd/vdd
-10
-11
-12
-13
+8 - TIM8_CH3 TIM3_CH3
+9 - TIM8_CH4_BKIN2 TIM3_CH4 - switch gnd/vdd
+10 - TIM8_CH1N 
+11 - TIM8_CH2N 
+12 - TIM8_CH3N 
+13 - TIM1_CH1N 
 
 PD - Heart LEDs
 0
-1
+1 - TIM8_CH4_BKIN2
 2
 3 - TIM2_CH1
 4 - TIM2_CH2
