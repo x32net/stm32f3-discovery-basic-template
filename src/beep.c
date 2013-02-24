@@ -85,23 +85,26 @@ void beep_init() {
 }
 
 void beep_on(uint8_t high){
+  while(BeepOn!=0){
+  }
   beep_init();  //Why do I have to do this?!
   if(high == 1){
     TIM_SetAutoreload(TIM2,1250);
     TIM_SetCompare4(TIM2, 625);
     TIM_SetAutoreload(TIM8,1250);
     TIM_SetCompare2(TIM8, 625);
+    BeepOn = 25;
   }
   else{
     TIM_SetAutoreload(TIM2,5000);
     TIM_SetCompare4(TIM2, 2500);
     TIM_SetAutoreload(TIM8,5000);
     TIM_SetCompare2(TIM8, 2500);
+    BeepOn = 100;
   }
   TIM_Cmd(TIM2, ENABLE);
   TIM_Cmd(TIM8, ENABLE);
   TIM_CtrlPWMOutputs(TIM8, ENABLE);
-  BeepOn = 25;
 }
 
 void beep_tick(){

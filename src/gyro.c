@@ -95,6 +95,7 @@ void GyroReadAngRate (float* pfData)
     break;
   }
   /* divide by sensitivity */
+  Seed <<= 1;
   for(i=0; i<3; i++)
   {
     Seed += RawData[i];
