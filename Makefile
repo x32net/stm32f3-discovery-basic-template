@@ -85,8 +85,6 @@ $(PROJ_NAME).elf: $(OBJS)
 	$(OBJDUMP) -St $(PROJ_NAME).elf >$(PROJ_NAME).lst
 	$(SIZE) $(PROJ_NAME).elf
 
-$(PROJ_NAME).bin: $(PROJ_NAME).elf
-	
 program: all
 	openocd -f $(OPENOCD_BOARD_DIR)/stm32f3discovery.cfg -f $(OPENOCD_PROC_FILE) -c "stm_flash `pwd`/$(PROJ_NAME).bin" -c shutdown
 
