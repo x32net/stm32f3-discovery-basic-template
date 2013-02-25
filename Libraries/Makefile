@@ -45,4 +45,5 @@ libstm32f3.a: $(OBJS)
 	$(AR) -r $@ $(OBJS)
 
 clean:
-	rm -f dirs $(OBJS) $(DEPS) libstm32f0.a
+	rm -f dirs $(OBJS) $(DEPS) libstm32f3.a
+
