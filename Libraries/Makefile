@@ -1,5 +1,5 @@
-CC=arm-none-eabi-gcc
-AR=arm-none-eabi-ar
+CC = arm-none-eabi-gcc
+AR = arm-none-eabi-ar
 
 ###########################################
 

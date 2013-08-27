@@ -1,0 +1,31 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+	"build_systems":
+	[
+		{
+			"name": "ARM build",
+			"cmd": ["make", "all"],
+			"working_dir": "${project_path}"
+		}/*,
+		{
+			"name": "ARM hex",
+			"cmd": ["make", "main.hex"],
+			"working_dir": "${project_path}"
+		},
+		{
+			"name": "ARM bin",
+			"cmd": ["make", "main.bin"],
+			"working_dir": "${project_path}"
+		}*/
+	],
+	"settings":
+	{
+		"sublimegdb_workingdir": "${folder:${project_path:.}}",
+		"sublimegdb_commandline": "arm-none-eabi-gdb --interpreter=mi -command=${project_path:extra/sublimegdb_cmds}"
+	}
+}
