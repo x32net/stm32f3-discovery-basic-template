@@ -1,11 +1,11 @@
 # put your *.c source files here, make should handle the rest!
-SRCS = main.c errno.c stm32f3_discovery.c system_stm32f30x.c
+SRCS = main.c errno.c system_stm32f30x.c
 
 # all the files will be generated with this name (main.elf, main.bin, main.hex, etc)
 PROJ_NAME = main
 
 # Location of the Libraries folder from the STM32F0xx Standard Peripheral Library
-STD_PERIPH_LIB = Libraries
+STD_PERIPH_LIB = ../STM32F3-Discovery_FW_V1.1.0/inst
 
 # Location of the linker scripts
 LDSCRIPT_INC = Device/ldscripts
@@ -28,23 +28,16 @@ SIZE = arm-none-eabi-size
 CFLAGS  = -Wall -g -std=c99 -Os
 CFLAGS += -mlittle-endian -mcpu=cortex-m4  -march=armv7e-m -mthumb
 CFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=hard
+# флаги компилятора, которые разбивают функции и данные в разные секции
 CFLAGS += -ffunction-sections -fdata-sections
-
+# Компоновщик в состоянии избавиться от секций, на которые никто не ссылается и которые не были явно указаны как необходимые в сценарии компоновки. Делается это достаточно просто — с помощью флага --gc-sections
 LDFLAGS += -Wl,--gc-sections -Wl,-Map=$(PROJ_NAME).map
 
 ###################################################
 
 vpath %.a $(STD_PERIPH_LIB)
 
-ROOT = $(shell pwd)
-
-CFLAGS += -I inc
-CFLAGS += -I $(STD_PERIPH_LIB)
-CFLAGS += -I $(STD_PERIPH_LIB)/CMSIS/Device/ST/STM32F30x/Include
-CFLAGS += -I $(STD_PERIPH_LIB)/CMSIS/Include
-CFLAGS += -I $(STD_PERIPH_LIB)/STM32F30x_StdPeriph_Driver/inc
-CFLAGS += -I $(STD_PERIPH_LIB)/STM32_USB-FS-Device_Driver/inc
-CFLAGS += -include $(STD_PERIPH_LIB)/stm32f30x_conf.h
+CFLAGS += -include $(STD_PERIPH_LIB)/stm32f30x_conf.h -I $(STD_PERIPH_LIB) 
 # add startup file to build
 STARTUP = Device/startup_stm32f30x.s
 
@@ -57,14 +50,11 @@ DEPS = $(addprefix deps/,$(SRCS:.c=.d))
 
 ###################################################
 
-.PHONY: all lib proj program debug clean reallyclean
+.PHONY: all proj program debug clean
 
-all: lib proj
+all: proj
 
 -include $(DEPS)
-
-lib:
-	$(MAKE) -C $(STD_PERIPH_LIB)
 
 proj: $(PROJ_NAME).elf
 
@@ -76,7 +66,7 @@ objs/%.o : src/%.c dirs
 	$(CC) $(CFLAGS) -c -o $@ $< -MMD -MF deps/$(*F).d
 
 $(PROJ_NAME).elf: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(STARTUP) -L$(STD_PERIPH_LIB) -lstm32f3 -L$(LDSCRIPT_INC) -Tstm32f3.ld
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(STARTUP) -L$(STD_PERIPH_LIB) -lstm32f3-util -lstm32f3 -L$(LDSCRIPT_INC) -Tstm32f3.ld
 	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
 	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
 	$(OBJDUMP) -St $(PROJ_NAME).elf >$(PROJ_NAME).lst
@@ -98,6 +88,3 @@ clean:
 	rm -f $(PROJ_NAME).bin
 	rm -f $(PROJ_NAME).map
 	rm -f $(PROJ_NAME).lst
-
-reallyclean: clean
-	$(MAKE) -C $(STD_PERIPH_LIB) clean
